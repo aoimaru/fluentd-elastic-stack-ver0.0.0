@@ -40,6 +40,6 @@ services:
       - "24287:24287"
       - "24287:24287/udp"
     external_links:
-      - fluentd-elastic-stack-ver0.0.0-es-es
+      - es
     
 
