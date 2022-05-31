@@ -1,0 +1,45 @@
+version: '3'
+services:
+  fluentd-elastic-stack-ver0.0.0-ft_n-nginx_d:
+    image: nginx:1.10
+    ports:
+      # ホスト:コンテナ
+      - "8080:80"
+    container_name: fluentd-elastic-stack-ver0.0.0-ft_n-nginx_d
+    volumes:
+      - ./nginx_d/log:/var/log/nginx
+    
+  fluentd-elastic-stack-ver0.0.0-ft_n-fluent_d:
+    image: fluent/fluentd:latest
+    # build: ./fluent_d/
+    restart: always
+    container_name: fluentd-elastic-stack-ver0.0.0-ft_n-fluent_d
+    command: >
+      /usr/bin/fluentd -c /fluentd/etc/fluent.conf -v
+    volumes:
+      - ${PWD}/fluent_d/config/fluent.conf:/fluentd/etc/fluent.conf
+      - ${PWD}/fluent_d/log:/fluentd/log
+      - ${PWD}/nginx_d/log:/var/log/nginx
+    ports:
+      - "24222:24224"
+      - "24222:24224/udp"
+    depends_on:
+      - fluentd-elastic-stack-ver0.0.0-ft_n-fluent_b
+    
+  fluentd-elastic-stack-ver0.0.0-ft_n-fluent_b:
+    # image: fluent/fluentd:latest
+    build: ${PWD}/fluent_b/
+    restart: always
+    container_name: fluentd-elastic-stack-ver0.0.0-ft_n-fluent_b
+    command: >
+      /usr/bin/fluentd -c /fluentd/etc/fluent.conf -v
+    volumes:
+      - ${PWD}/fluent_b/config/fluent.conf:/fluentd/etc/fluent.conf
+      - ${PWD}/fluent_b/log:/fluentd/log
+    ports:
+      - "24287:24287"
+      - "24287:24287/udp"
+    external_links:
+      - fluentd-elastic-stack-ver0.0.0-es-es
+    
+
